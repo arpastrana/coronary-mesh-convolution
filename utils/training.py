@@ -15,8 +15,9 @@ def fit(model, loaders, objective, epochs, optimiser, device, tag):
     for epoch in tqdm.tqdm(range(epochs)):
         model.train()  # set to training mode
         train_loss = torch.zeros(len(train_loader))
-        for i, batch in enumerate(train_loader):
-
+        print("training")
+        for i, batch in enumerate(train_loader):  # dataset size / batch size
+            print(f"batch: {i}")
             optimiser.zero_grad()  # reset the gradient accumulator
             batch = batch.to(device)  # transfer to GPU if available
 
@@ -36,6 +37,7 @@ def fit(model, loaders, objective, epochs, optimiser, device, tag):
         model.eval()  # set to evaluation mode
 
         valid_loss = torch.zeros(len(valid_loader))
+        print("validating")
         for i, batch in enumerate(valid_loader):
             batch = batch.to(device)  # transfer to GPU if available
             output = model(batch)[batch.mask]
@@ -48,6 +50,7 @@ def fit(model, loaders, objective, epochs, optimiser, device, tag):
                        '75th': torch.quantile(valid_loss, 0.75)}
         writer.add_scalars("Loss/validate", valid_stats, epoch)
 
+    print("training done")
     # Save the model for inference
     if not os.path.exists('data'):
         os.makedirs('data')
