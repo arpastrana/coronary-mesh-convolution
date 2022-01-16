@@ -39,9 +39,9 @@ class Experiment:
 
         # Dataset IDs
         path = ...
-        pattern = "visuals/sample_*.vtp"  # in the "raw" folder
+        pattern = os.path.join("surface", "sample_*.vtp")  # in the "raw" folder
 
-        # Training, validation and test split (total 2170 samples)
+        # Training, validation and test split (total 2000 samples)
         train_split = [0, 1600]
         valid_split = [1600, 1800]
         test_split = [1800, 2000]
@@ -50,16 +50,14 @@ class Experiment:
         params = {'batch_size': self.batch_size, 'shuffle': False,
                   'num_workers': 0, 'pin_memory': False}
 
-        args = [self.tag, path, pattern, train_split, valid_split, test_split, params]
-        self.fit(device, args)
+        args = self.tag, path, pattern, train_split, valid_split, test_split, params
+        self.fit(device, *args)
 
     def fit_single(self, device):
 
         # Dataset IDs
-        # path = ...
-        # pattern = "visuals/sample_*.vtp"  # in the "raw" folder
-        path = "/Users/arpj/code/princeton/coronary-mesh-convolution/datasets"
-        pattern = "visuals/sample_*.vtp"  # in the "raw" folder
+        path = ...
+        pattern = os.path.join("surface", "sample_*.vtp")  # in the "raw" folder
 
 
         # Training, validation and test split (total 2000 samples)
@@ -71,11 +69,10 @@ class Experiment:
         params = {'batch_size': self.batch_size, 'shuffle': False,
                   'num_workers': 0, 'pin_memory': False}
 
-        args = [self.tag, path, pattern, train_split, valid_split, test_split, params]
-        self.fit(device, args)
+        args = self.tag, path, pattern, train_split, valid_split, test_split, params
+        self.fit(device, *args)
 
-    def fit(self, device, args):
-        tag, path, pattern, train_split, valid_split, test_split, params = args
+    def fit(self, device, tag, path, pattern, train_split, valid_split, test_split, params):
 
         # Create datasets
         train = InMemoryVesselDataset(path, pattern, train_split, "train", pre_transform=self.transform)
@@ -84,9 +81,9 @@ class Experiment:
         print("-----datasets created-----")
 
         # Data loaders
-        train_loader = torch_geometric.data.DataLoader(train, **params)
-        valid_loader = torch_geometric.data.DataLoader(valid, **params)
-        test_loader = torch_geometric.data.DataLoader(test, batch_size=1)
+        train_loader = torch_geometric.loader.DataLoader(train, **params)
+        valid_loader = torch_geometric.loader.DataLoader(valid, **params)
+        test_loader = torch_geometric.loader.DataLoader(test, batch_size=1)
 
         # Network model (FeaSt convolutional network)
         model = self.model.to(device)
@@ -105,18 +102,16 @@ class Experiment:
 
         # Write predictions to VTP files for visualisation
         print("Writing predictions to VTP files for viz")
-        model.load_state_dict(torch.load("data/" + tag + ".pt", map_location='cpu'))
+        model.load_state_dict(torch.load(os.path.join("data", "{}.pt".format(tag)), map_location='cpu'))
         model.eval()  # set to evaluation mode
         if not os.path.exists('vis'):
             os.makedirs('vis')
-        i = 0
-        for sample in tqdm.tqdm(test_loader):
+        for i, sample in enumerate(tqdm.tqdm(test_loader)):
             prediction = model(sample.to(device))
             fields = visualisation.default_fields(sample, prediction)
             # fields['pooling'] = visualisation.pooling_scales(sample)
-            filename = "vis/prediction" + str(i) + ".vtp"
+            filename = os.path.join("vis", "prediction{}.vtp".format(str(i)))
             visualisation.new_file(sample.pos, sample.face, filename, fields)
-            i += 1
 
         # Tabulate the evaluation metrics
         print("Tabulating metrics")
