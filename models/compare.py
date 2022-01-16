@@ -20,6 +20,8 @@ class Compare(torch.nn.Module):
         tmp = [data.feat[:, 0][:, [0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]],
                data.feat[:, 1][:, [0, 0, 0, 1, 1, 2], [0, 1, 2, 1, 2, 2]],
                data.feat[:, 2].reshape(-1, 9)]
+        # for you, you can remove the tmp shennanigans: they remove duplicated features due to matrix symmetry
+        # data.x = data.normals
         data.x = torch.hstack((torch.hstack(tmp), data.geo.unsqueeze(1)))
 
         # Encoder
@@ -65,7 +67,7 @@ class CompareFeaSt(Compare):
         heads = 2
 
         # Encoder
-        self.conv01 = nn.FeaStResBlock(22, channels, heads=heads)
+        self.conv01 = nn.FeaStResBlock(22, channels, heads=heads)  # change to 3 if it were the normal as input feature
         self.conv02 = nn.FeaStResBlock(channels, channels, heads=heads)
 
         # Downstream
@@ -92,7 +94,7 @@ class CompareFeaSt(Compare):
         print(self.parameter_table())
 
 
-# FeaSt convolutional residual network for comparison with the GEM-CNN
+# FeaSt convolutional residual network for comparison with the GEM-CNN, trains faster in CPU
 class CompareSAGE(Compare):
     def __init__(self):
         super(CompareSAGE, self).__init__()

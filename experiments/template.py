@@ -56,8 +56,11 @@ class Experiment:
     def fit_single(self, device):
 
         # Dataset IDs
-        path = ...
+        # path = ...
+        # pattern = "visuals/sample_*.vtp"  # in the "raw" folder
+        path = "/Users/arpj/code/princeton/coronary-mesh-convolution/datasets"
         pattern = "visuals/sample_*.vtp"  # in the "raw" folder
+
 
         # Training, validation and test split (total 2000 samples)
         train_split = [0, 1600]
@@ -78,6 +81,7 @@ class Experiment:
         train = InMemoryVesselDataset(path, pattern, train_split, "train", pre_transform=self.transform)
         valid = InMemoryVesselDataset(path, pattern, valid_split, "valid", pre_transform=self.transform)
         test = InMemoryVesselDataset(path, pattern, test_split, "test", pre_transform=self.transform)
+        print("-----datasets created-----")
 
         # Data loaders
         train_loader = torch_geometric.data.DataLoader(train, **params)
@@ -86,17 +90,21 @@ class Experiment:
 
         # Network model (FeaSt convolutional network)
         model = self.model.to(device)
+        print(f"-----model to device {device}-----")
 
         # Optimisation settings
         objective = torch.nn.MSELoss()
         optimiser = torch.optim.Adam(model.parameters(), lr=self.lr)
 
         # Training
+        print(f"Training started. Epochs to run: {self.epochs}")
         training.fit(model, [train_loader, valid_loader],
                      objective, self.epochs, optimiser, device,
                      tag=tag)
+        print("Training ended!")
 
         # Write predictions to VTP files for visualisation
+        print("Writing predictions to VTP files for viz")
         model.load_state_dict(torch.load("data/" + tag + ".pt", map_location='cpu'))
         model.eval()  # set to evaluation mode
         if not os.path.exists('vis'):
@@ -111,9 +119,12 @@ class Experiment:
             i += 1
 
         # Tabulate the evaluation metrics
+        print("Tabulating metrics")
         evaluation = Metrics([test_loader]).statistics(model, device)
         print(evaluation)
 
         # Log the experiment for identification
+        print("Logging experiment")
         log.experiment(self.model, self.dataset, self.batch_size, self.transform, self.epochs, self.lr, optimiser,
                        objective)
+        print("Ciao!")
