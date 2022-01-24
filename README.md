@@ -30,6 +30,13 @@ cd gauge-equivariant-mesh-cnn
 pip install .
 ```
 
+Downgrade `setuptools` to deal with PyTorch/tensorboard `LooseVersion` import. More info [here](https://discuss.pytorch.org/t/import-summarywriter-gives-attributeerror-attributeerror-module-setuptools-distutils-has-no-attribute-version/140023). 
+
+```
+pip install setuptools==59.5.0
+```
+
+`
 ## Set-up
 We adapt the dataset directory structure
 [used by PyTorch Geometric ("PyG")](https://pytorch-geometric.readthedocs.io/en/latest/notes/create_dataset.html). The
