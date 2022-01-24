@@ -6,7 +6,8 @@ from .template import Experiment
 
 def fit(device):
     # Neural network
-    model = CompareFeaSt()
+    # model = CompareFeaSt()
+    model = CompareSAGE()
 
     # Training data
     dataset = 'single_arteries'
@@ -28,5 +29,5 @@ def fit(device):
                             batch_size=batch_size,
                             tag=tag,
                             transforms=transforms,
-                            epochs=5)  # 400
+                            epochs=100)  # 400
     experiment.run(device)
