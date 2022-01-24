@@ -11,7 +11,6 @@ class IndexFinder(object):
     Args:
         -
     """
-
     def __init__(self, pytorch=False):
         self.pytorch = pytorch
         self.reader = vtk.vtkXMLPolyDataReader()  # performance

@@ -7,6 +7,9 @@ import os
 from utils.metrics import Metrics
 
 
+PATH_DATASET = "./datasets"
+
+
 class Experiment:
     def __init__(self, model, dataset, batch_size, tag, transforms=None, lr=0.001, epochs=1000):
         self.model = model
@@ -38,7 +41,7 @@ class Experiment:
     def fit_bifurcating(self, device):
 
         # Dataset IDs
-        path = ...
+        path = os.path.abspath(PATH_DATASET)
         pattern = os.path.join("surface", "sample_*.vtp")  # in the "raw" folder
 
         # Training, validation and test split (total 2000 samples)
@@ -56,9 +59,8 @@ class Experiment:
     def fit_single(self, device):
 
         # Dataset IDs
-        path = ...
+        path = os.path.abspath(PATH_DATASET)
         pattern = os.path.join("surface", "sample_*.vtp")  # in the "raw" folder
-
 
         # Training, validation and test split (total 2000 samples)
         train_split = [0, 1600]
