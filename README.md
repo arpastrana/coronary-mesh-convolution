@@ -36,7 +36,6 @@ Downgrade `setuptools` to deal with PyTorch/tensorboard `LooseVersion` import. M
 pip install setuptools==59.5.0
 ```
 
-`
 ## Set-up
 We adapt the dataset directory structure
 [used by PyTorch Geometric ("PyG")](https://pytorch-geometric.readthedocs.io/en/latest/notes/create_dataset.html). The
